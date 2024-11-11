@@ -10,9 +10,9 @@ spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/entnews?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8
-    username: root
-    password: 123456
+    url: jdbc:mysql://rm-2zesh84offkd6kbsleo.mysql.rds.aliyuncs.com:3306/db_data_center?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    username: db_data
+    password: root@1234
     druid:
       initial-size: 5
       min-idle: 5
