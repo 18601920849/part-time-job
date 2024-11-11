@@ -36,5 +36,8 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
 
+api:
+  url: http://localhost:8081
+
 
 
