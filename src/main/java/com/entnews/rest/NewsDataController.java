@@ -4,10 +4,9 @@ import com.entnews.common.msg.Result;
 import com.entnews.entity.Enterprise;
 import com.entnews.entity.News;
 import com.entnews.service.NewsService;
+import com.entnews.vo.NewsVo;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,12 +18,13 @@ public class NewsDataController {
     private NewsService newsService;
 
     @PostMapping("/newsData")
-    public Result<List<News>> newsData(String startTime, String endTime){
-        return Result.ok(newsService.getNewsByDate(startTime, endTime));
+    public Result<List<News>> newsData(@RequestBody NewsVo newsVo){
+        return Result.ok(newsService.getNewsByDate(newsVo.getStartTime(), newsVo.getEndTime()));
     }
 
     @PostMapping("/newsletter")
-    public Result newsletter(Integer id){
+    public Result newsletter(@RequestBody NewsVo newsVo){
+        newsVo.getIds().stream().forEach(item-> System.out.println(item));
         return Result.ok("成功");
     }
 }
