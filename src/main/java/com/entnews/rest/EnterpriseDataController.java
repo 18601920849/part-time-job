@@ -1,7 +1,7 @@
 package com.entnews.rest;
 
 import com.entnews.common.msg.Result;
-import com.entnews.entity.Enterprise;
+import com.entnews.entity.TCompanyDetailInfo;
 import com.entnews.service.EnterpriseService;
 import com.entnews.vo.NewsVo;
 import jakarta.annotation.Resource;
@@ -22,7 +22,7 @@ public class EnterpriseDataController {
 
 
     @PostMapping("/enterpriseData")
-    public Result<List<Enterprise>> enterpriseData(@RequestBody NewsVo newsVo) {
+    public Result<List<TCompanyDetailInfo>> enterpriseData(@RequestBody NewsVo newsVo) {
         return Result.ok(enterpriseService.getEnterpriseByDate(newsVo.getStartTime(), newsVo.getEndTime()));
     }
 }
