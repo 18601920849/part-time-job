@@ -42,13 +42,18 @@ xxl:
       addresses: http://8.152.6.134:8666/xxl-job-admin # XXL-JOB 调度中心地址
     accessToken: default_token
     executor:
-      appname: xxl-job-executor-sample # 执行器名称
+      appname: xxl-job-executor-entnews # 执行器名称
       address:
       ip:  # 执行器 IP，为空则自动获取
-      port: 9999 # 执行器端口
+      port: 9998 # 执行器端口
       logpath: /data/applogs/xxl-job/jobhandler # 执行器日志路径
       logretentiondays: -1 # 执行器日志保留天数
 
+logging:
+  level:
+    root: INFO
+  file:
+    name: app.log
 
 api:
   url: http://localhost:8081
