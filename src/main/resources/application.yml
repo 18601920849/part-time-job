@@ -2,6 +2,10 @@ server:
   port: 8080
   servlet:
     context-path: /entnews
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/plain
+    min-response-size: 1024
 
 spring:
   application:
