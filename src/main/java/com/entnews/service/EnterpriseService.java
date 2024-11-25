@@ -24,10 +24,6 @@ public class EnterpriseService extends ServiceImpl<EnterpriseDao, TCompanyDetail
         LambdaQueryWrapper<TCompanyDetailInfo> queryWrapper = Wrappers.lambdaQuery();
         // 查询时间大于等于startTime，小于等于endTime的数据
         queryWrapper.between(TCompanyDetailInfo::getEtlDate, startDate, endDate);
-        //return list(queryWrapper);
-        return new ArrayList<TCompanyDetailInfo>(List.of(new TCompanyDetailInfo[]{
-                new TCompanyDetailInfo("1", "test", "test", "test", "test", "test", "test", "test", "test", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, startDate),
-                new TCompanyDetailInfo("2", "test", "test", "test", "test", "test", "test", "test", "test", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, endDate)
-        }));
+        return list(queryWrapper);
     }
 }

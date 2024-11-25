@@ -42,9 +42,10 @@ public class RunPythonJob {
             StringBuffer sb = new StringBuffer();
             while ((line = br.readLine()) != null) {
                 sb.append(line);
+                XxlJobFileAppender.appendLog(jobLogFileName, "python脚本执行返回结果:" + line);
             }
             log.info("python脚本执行返回结果:" + sb);
-            XxlJobFileAppender.appendLog(jobLogFileName, "python脚本执行返回结果:" + sb);
+
             int exitCode = process.waitFor();
             if (exitCode == 0) {
                 log.info("Python script executed successfully.");

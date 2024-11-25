@@ -29,11 +29,7 @@ public class NewsService extends ServiceImpl<NewsDao, TNewsDetailInfo> {
         LambdaQueryWrapper<TNewsDetailInfo> queryWrapper = Wrappers.lambdaQuery();
         // 查询时间大于等于startTime，小于等于endTime的数据
         queryWrapper.between(TNewsDetailInfo::getEtlDate, startDate, endDate);
-        //return list(queryWrapper);
-        return new ArrayList<TNewsDetailInfo>(List.of(new TNewsDetailInfo[]{
-                new TNewsDetailInfo("1", "test", "test", "test", "test", "test", "test", null, startDate),
-                new TNewsDetailInfo("2", "test", "test", "test", "test", "test", "test", null, endDate)
-        }));
+        return list(queryWrapper);
     }
 
     public String getDataFromInterface() {
