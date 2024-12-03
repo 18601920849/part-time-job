@@ -49,19 +49,18 @@ public class CozeHttpClient {
         Gson gson = new Gson();
         String headerJson = gson.toJson(mapHeader);
         String playploadJson = gson.toJson(mapPayload);
-        String encodedHeader = Base64.getUrlEncoder().encodeToString(headerJson.getBytes());
-        String encodedPayload = Base64.getUrlEncoder().encodeToString(playploadJson.getBytes());
+        String encodedHeader = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes());
+        String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(playploadJson.getBytes());
         PrivateKey privateKey = getPrivateKey();
         String unsignedToken = encodedHeader + "." + encodedPayload;
         Algorithm algorithm = Algorithm.RSA256((RSAPrivateKey) privateKey);
-        byte[] sign = algorithm.sign(unsignedToken.getBytes("UTF-8"));
-        String encodeSign = Base64.getUrlEncoder().encodeToString(sign);
-        String token = encodedHeader + "." + encodedPayload + "." + encodeSign;
+        byte[] sign = algorithm.sign(unsignedToken.getBytes("utf-8"));
+        // 对签名进行 Base64 编码
+        String encodedSign = Base64.getUrlEncoder().withoutPadding().encodeToString(sign);
         HttpRequest post = HttpUtil.createPost(GET_TOKEN_URL);
         post.header("Content-Type", "application/json");
-        post.header("Authorization", "Bearer " + token);
+        post.header("Authorization", "Bearer " + encodedSign);
         HttpResponse response = post.body("{\"duration_seconds\": 86399,\"grant_type\": \"urn:ietf:params:oauth:grant-type:jwt-bearer\"}").execute();
-        System.out.println(token);
         if (response.isOk()) {
             String body = response.body();
             Map map = gson.fromJson(body, Map.class);
@@ -80,17 +79,17 @@ public class CozeHttpClient {
             InputStream inputStream = resource.getStream();
             // 将PEM格式转换为字节数组
             byte[] privateKeyBytes = inputStream.readAllBytes();
-            String pem = new String(privateKeyBytes);
-            // 去除PEM文件开头的 "-----BEGIN PRIVATE KEY-----"
-            pem = pem.replace("-----BEGIN PRIVATE KEY-----", "");
-            // 去除PEM文件结尾的 "-----END PRIVATE KEY-----"
-            pem = pem.replace("-----END PRIVATE KEY-----", "");
-            // 去除换行符等空白字符
-            pem = pem.replaceAll("\\s", "");
+            String privateKeyContent = new String(privateKeyBytes);
+            // 去掉头尾标识
+            String privateKeyPEM = privateKeyContent.replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replaceAll("\\s", "");
+            // Base64解码
+            byte[] encodedKey = Base64.getDecoder().decode(privateKeyPEM);
 
-            KeyFactory keyStore = KeyFactory.getInstance("RSA");
-            RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSAKeyGenParameterSpec.F4, new BigInteger(pem, 16));
-            return keyStore.generatePrivate(keySpec);
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encodedKey);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            return keyFactory.generatePrivate(spec);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
