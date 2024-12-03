@@ -3,9 +3,12 @@ package com.entnews.service;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.entnews.dao.NewsDao;
+import com.entnews.entity.TCompanyDetailInfo;
 import com.entnews.entity.TNewsDetailInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,13 +26,16 @@ public class NewsService extends ServiceImpl<NewsDao, TNewsDetailInfo> {
     @Autowired
     private WebClient webClient;
 
-    public List<TNewsDetailInfo> getNewsByDate(String startTime, String endTime) {
+    public IPage<TNewsDetailInfo> getNewsByDate(String startTime, String endTime, Long current, Long size) {
+        Page<TNewsDetailInfo> page = new Page<>(current, size);
         Date startDate = DateUtil.parse(startTime, DatePattern.NORM_DATETIME_PATTERN);
         Date endDate = DateUtil.parse(endTime, DatePattern.NORM_DATETIME_PATTERN);
         LambdaQueryWrapper<TNewsDetailInfo> queryWrapper = Wrappers.lambdaQuery();
         // 查询时间大于等于startTime，小于等于endTime的数据
         queryWrapper.between(TNewsDetailInfo::getEtlDate, startDate, endDate);
-        return list(queryWrapper);
+        queryWrapper.orderByDesc(TNewsDetailInfo::getEtlDate);
+        queryWrapper.orderByAsc(TNewsDetailInfo::getNewsNo);
+        return page(page, queryWrapper);
     }
 
     public String getDataFromInterface() {

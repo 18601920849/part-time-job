@@ -12,4 +12,8 @@ public class NewsVo {
     private String endTime;
 
     private List<String> ids;
+
+    private Integer pageNum;
+
+    private Integer pageSize;
 }

@@ -11,6 +11,7 @@ import java.util.List;
 public class DemoService extends ServiceImpl<DemoDao, Demo> {
 
     public List<Demo> getDemo(){
+
         return this.list();
     }
 }

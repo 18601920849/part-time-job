@@ -1,5 +1,9 @@
 package com.entnews.rest;
 
+import cn.hutool.core.lang.intern.InternUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.entnews.common.msg.Result;
 import com.entnews.entity.TNewsDetailInfo;
 import com.entnews.service.NewsService;
@@ -17,8 +21,17 @@ public class NewsDataController {
     private NewsService newsService;
 
     @PostMapping("/newsData")
-    public Result<List<TNewsDetailInfo>> newsData(@RequestBody NewsVo newsVo){
-        return Result.ok(newsService.getNewsByDate(newsVo.getStartTime(), newsVo.getEndTime()));
+    public Result<Object> newsData(@RequestBody NewsVo newsVo){
+        Integer pageNum = newsVo.getPageNum();
+        Integer pageSize = newsVo.getPageSize();
+        String startTime = newsVo.getStartTime();
+        String endTime = newsVo.getEndTime();
+        if(ObjUtil.isNull(pageNum) || ObjUtil.isNull(pageSize) || StrUtil.isBlank(startTime) || StrUtil.isBlank(endTime)){
+            return Result.fail("参数错误");
+        }
+        IPage<TNewsDetailInfo> newsByDate = newsService.getNewsByDate(newsVo.getStartTime(), newsVo.getEndTime(), (long) pageNum, (long) pageSize);
+
+        return Result.ok(newsByDate);
     }
 
     @PostMapping("/newsletter")

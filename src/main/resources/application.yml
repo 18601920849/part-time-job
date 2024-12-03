@@ -60,7 +60,9 @@ logging:
     name: app.log
 
 api:
-  url: http://localhost:8081
+  publicKey: IztsDCjVvMkZdOMpFOnaqY60wgXmru05fSCvmHpHrSw
+  appId: 1169482334402
+
 
 
 
