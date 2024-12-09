@@ -16,4 +16,12 @@ public class NewsVo {
     private Integer pageNum;
 
     private Integer pageSize;
+
+    private String letterDate;
+
+    private String issue;
+
+    private String numberNo;
+
+    private String year;
 }

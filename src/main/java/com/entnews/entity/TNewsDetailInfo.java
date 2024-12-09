@@ -29,6 +29,12 @@ public class TNewsDetailInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "新闻名称")
+    private String newName;
+
+    @ApiModelProperty(value = "新闻列表地址")
+    private String url;
+
     @ApiModelProperty(value = "来源网址")
     private String sourceUrl;
 
