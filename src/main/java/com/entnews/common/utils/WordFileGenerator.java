@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 根据word模板生成word文件
+ */
 public class WordFileGenerator {
     public static void generateWord(String templatePath, String outputPath, List<Map<String, String>> dataList, Map<String, String> commonDataMap){
         try (InputStream fis = new ClassPathResource(templatePath).getStream();

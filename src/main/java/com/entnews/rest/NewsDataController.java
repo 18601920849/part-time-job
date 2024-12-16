@@ -66,4 +66,21 @@ public class NewsDataController {
             return Result.fail("失败");
         }
     }
+
+    @PostMapping("/requestNewsLetter")
+    public Result requestNewsLetter(@RequestBody NewsVo newsVo) {
+        log.info("进入获取简报接口：ids={}", newsVo.getIds().toString());
+        List<String> ids = newsVo.getIds();
+        if (CollectionUtil.isEmpty(ids)) {
+            return Result.fail("参数错误");
+        }
+        try {
+            newsService.sendNewsLetter(ids);
+            return Result.ok("成功");
+        } catch (Exception e) {
+            log.info("获取简报失败：errorMsg={}", e.toString());
+            e.printStackTrace();
+            return Result.fail("失败");
+        }
+    }
 }

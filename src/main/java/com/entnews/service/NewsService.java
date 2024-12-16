@@ -10,15 +10,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.entnews.common.config.RabbitMQConfiguration;
 import com.entnews.common.utils.CozeHttpClient;
 import com.entnews.common.utils.WordFileGenerator;
 import com.entnews.dao.NewsDao;
 import com.entnews.entity.TNewsDetailInfo;
 import com.google.gson.Gson;
 import jakarta.annotation.Resource;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Service
@@ -26,6 +30,9 @@ public class NewsService extends ServiceImpl<NewsDao, TNewsDetailInfo> {
 
     @Resource
     private CozeHttpClient cozeHttpClient;
+
+    @Resource
+    private AmqpTemplate amqpTemplate;
 
     private final String templatePath = "template/newsfile.docx";
 
@@ -102,6 +109,60 @@ public class NewsService extends ServiceImpl<NewsDao, TNewsDetailInfo> {
         fileName = "newsletter" + System.currentTimeMillis() + RandomUtil.randomString(5) + ".docx";
         WordFileGenerator.generateWord(templatePath, outputPath + fileName, wordList, commonDataMap);
         return fileName;
+    }
+
+    @Async
+    public void sendNewsLetter(List<String> ids) throws UnsupportedEncodingException {
+        LambdaQueryWrapper<TNewsDetailInfo> wrapper = Wrappers.lambdaQuery();
+        wrapper.in(TNewsDetailInfo::getNewsNo, ids);
+        List<TNewsDetailInfo> list = list(wrapper);
+        String token = cozeHttpClient.getToken();
+        String chatJson = cozeHttpClient.createChat(token);
+        Gson gson = new Gson();
+        Map map = gson.fromJson(chatJson, Map.class);
+        String conversationId = (String) map.get("id");
+        List wordList = new ArrayList();
+        for (TNewsDetailInfo tNewsDetailInfo : list) {
+            String sourceUrl = tNewsDetailInfo.getSourceUrl();
+            String chatId = cozeHttpClient.sendMsg(token, conversationId, sourceUrl);
+            if (StrUtil.isNotEmpty(chatId)){
+                boolean isSuccess = false;
+                while (!isSuccess){
+                    String status = cozeHttpClient.getRetrieve(token, chatId, conversationId);
+                    if ("completed".equals(status)){
+                        isSuccess = true;
+                        String result = cozeHttpClient.getMsg(token, chatId, conversationId);
+                        Map resultMap = gson.fromJson(result, Map.class);
+                        List dataList = (List) resultMap.get("data");
+                        for (Object data : dataList){
+                            Map answerMap = (Map) data;
+                            String type = (String) answerMap.get("type");
+                            if ("answer".equals(type)){
+                                Map answerContent = new HashMap();
+                                String content = (String) answerMap.get("content");
+                                String title = content.substring(content.indexOf("标题：")+3, content.indexOf("关键字："));
+                                String keyword = content.substring(content.indexOf("关键字：")+4, content.indexOf("摘要："));
+                                String summary = content.substring(content.indexOf("摘要：")+3);
+                                answerContent.put("title", ""+title);
+                                answerContent.put("sourceurl", sourceUrl);
+                                answerContent.put("summary", summary);
+                                answerContent.put("keyword", keyword);
+                                wordList.add(answerContent);
+                            }
+                        }
+                    }else {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+        String message = gson.toJson(wordList);
+        amqpTemplate.convertAndSend(RabbitMQConfiguration.EXCHANGE_NAME,
+                RabbitMQConfiguration.ROUTING_KEY, message);
     }
 
 }

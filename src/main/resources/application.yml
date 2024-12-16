@@ -32,7 +32,11 @@ spring:
       max-pool-prepared-statement-per-connection-size: 20
       filters: stat,wall,log4j
       connection-properties: druid.stat.slowSqlMillis=500
-
+  rabbitmq:
+    host: 8.152.6.134
+    port: 5672
+    username: admin
+    password: admin1234@
 mybatis-plus:
   type-aliases-package: com.ent.news.entity
   mapper-locations: classpath*:mapper/*.xml
