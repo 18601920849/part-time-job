@@ -3,13 +3,16 @@ package com.entnews.common.utils;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +24,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 @Component
 public class CozeHttpClient {
 
@@ -43,6 +49,7 @@ public class CozeHttpClient {
     private final String RETRIEVE_URL = "https://api.coze.cn/v3/chat/retrieve";
 
     private final String GET_MSG_URL = "https://api.coze.cn/v3/chat/message/list";
+
 
     public String getToken() throws UnsupportedEncodingException {
         Map<String, Object> mapHeader = new HashMap<>();
@@ -160,7 +167,7 @@ public class CozeHttpClient {
 
     public String getRetrieve(String token, String chatId, String conversationId) {
         Gson gson = new Gson();
-        HttpRequest get = HttpUtil.createGet(RETRIEVE_URL+"?chat_id="+chatId+"&conversation_id="+conversationId);
+        HttpRequest get = HttpUtil.createGet(RETRIEVE_URL + "?chat_id=" + chatId + "&conversation_id=" + conversationId);
         get.header("Content-Type", "application/json");
         get.header("Authorization", "Bearer " + token);
         HttpResponse response = get.execute();
@@ -174,7 +181,7 @@ public class CozeHttpClient {
     }
 
     public String getMsg(String token, String chatId, String conversationId) {
-        HttpRequest get = HttpUtil.createGet(GET_MSG_URL+"?chat_id="+chatId+"&conversation_id="+conversationId);
+        HttpRequest get = HttpUtil.createGet(GET_MSG_URL + "?chat_id=" + chatId + "&conversation_id=" + conversationId);
         get.header("Content-Type", "application/json");
         get.header("Authorization", "Bearer " + token);
         HttpResponse response = get.execute();

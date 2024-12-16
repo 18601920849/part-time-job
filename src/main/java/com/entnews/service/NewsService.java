@@ -28,6 +28,7 @@ public class NewsService extends ServiceImpl<NewsDao, TNewsDetailInfo> {
     private CozeHttpClient cozeHttpClient;
 
     private final String templatePath = "template/newsfile.docx";
+
     //private final String outputPath = "/home/entnews/newsfiles/";
 
     private final String outputPath = "/home/entnews/newsfiles/";
