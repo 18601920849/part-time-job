@@ -24,4 +24,6 @@ public class NewsVo {
     private String numberNo;
 
     private String year;
+
+    private String code;
 }

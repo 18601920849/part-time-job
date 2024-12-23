@@ -112,7 +112,7 @@ public class NewsService extends ServiceImpl<NewsDao, TNewsDetailInfo> {
     }
 
     @Async
-    public void sendNewsLetter(List<String> ids) throws UnsupportedEncodingException {
+    public void sendNewsLetter(List<String> ids,String code) throws UnsupportedEncodingException {
         LambdaQueryWrapper<TNewsDetailInfo> wrapper = Wrappers.lambdaQuery();
         wrapper.in(TNewsDetailInfo::getNewsNo, ids);
         List<TNewsDetailInfo> list = list(wrapper);
@@ -160,7 +160,9 @@ public class NewsService extends ServiceImpl<NewsDao, TNewsDetailInfo> {
                 }
             }
         }
-        String message = gson.toJson(wordList);
+        Map resultMap = new HashMap();
+        resultMap.put(code, wordList);
+        String message = gson.toJson(resultMap);
         amqpTemplate.convertAndSend(RabbitMQConfiguration.EXCHANGE_NAME,
                 RabbitMQConfiguration.ROUTING_KEY, message);
     }
